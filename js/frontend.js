@@ -489,7 +489,8 @@ function eo_load_map() {
 			draggable: maps[i].draggable,
 			mapTypeControl: maps[i].maptypecontrol,
 			mapTypeId: google.maps.MapTypeId[maps[i].maptypeid],
-			disableAutoPan: maps[i].disableautopan
+			disableAutoPan: maps[i].disableautopan,
+			disableDoubleClickZoom: maps[i].disabledoubleclickzoom
 		};
 
 		map_options = wp.hooks.applyFilters( 'eventorganiser.google_map_options', map_options);
