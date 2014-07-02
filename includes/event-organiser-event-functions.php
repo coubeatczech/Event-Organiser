@@ -1381,6 +1381,7 @@ function eo_get_event_fullcalendar( $args = array() ){
 		'titleformatmonth' => 'F Y', 'titleformatweek' => "M j[ Y]{ '&#8212;'[ M] j, Y}", 'titleformatday' => 'l, M j, Y',
 		'year' => false, 'month' => false, 'date' => false,	'users_events' => false, 'event_occurrence__in' =>array(),
 		'theme' => true, 'isrtl' => $wp_locale->is_rtl(),
+		'city' => ""
 	);
 	
 	$args = shortcode_atts( $defaults, $args, 'eo_fullcalendar' );

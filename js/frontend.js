@@ -146,6 +146,7 @@ jQuery(document).ready(function () {
 				date: calendars[i].date ? calendars[i].date : undefined,
 				category: calendars[i].event_category,
 				venue: calendars[i].event_venue,
+				city: calendars[i].city,
 				customButtons:{
 					tag:		eventorganiser_tag_dropdown,
 					category:  	eventorganiser_cat_dropdown,
@@ -268,6 +269,10 @@ jQuery(document).ready(function () {
                 			if (typeof d.venue !== "undefined" &&d.venue !== "") {
                 				request.venue = d.venue;
                 			}
+
+											if (typeof d.city !== "undefined" && d.city !== ""){
+												request.city = d.city;
+											}
                 			
                 			request = wp.hooks.applyFilters( 'eventorganiser.fullcalendar_request', request, a, b, c, d );
                 			
