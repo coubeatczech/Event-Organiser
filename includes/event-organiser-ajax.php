@@ -23,6 +23,9 @@ add_action( 'wp_ajax_eo_toggle_addon_page', 'eventorganiser_ajax_toggle_addon_pa
  *@ignore
 */
 function eventorganiser_public_fullcalendar() {
+
+	global $wpdb;
+
 	$request = array(
 		'event_start_before'=>$_GET['end'],
 		'event_end_after'=>$_GET['start'],
@@ -41,8 +44,24 @@ function eventorganiser_public_fullcalendar() {
 			);
 	}
 
-	if( !empty($_GET['venue']) ){
-		$venues = explode(',',esc_attr($_GET['venue']));
+	$city_http_param = $_GET['city'];
+	if( !empty($city_http_param)) {
+		$query = $wpdb->prepare("
+			select venue.slug as venue_slug from wp_eo_venuemeta as venuemeta
+			join wp_terms as venue on venue.term_id = venuemeta.eo_venue_id
+			where meta_key = '_city' and meta_value = '%s'
+		", $city_http_param);
+		$venues = $wpdb->get_results($query, ARRAY_N);
+		if (!function_exists("my_flatten_array")) {
+			function my_flatten_array($arr) {
+				return $arr[0];
+			}
+		}
+		$venues = array_map("my_flatten_array", $venues);
+	}
+
+	if( !empty($_GET['venue']) || !empty($city_http_param) ){
+		$venues = array_merge( NULL === $venues ? array() : $venues , explode(',',esc_attr($_GET['venue'])));
 		$request['tax_query'][] = array(
 				'taxonomy' => 'event-venue',
 				'field' => 'slug',
