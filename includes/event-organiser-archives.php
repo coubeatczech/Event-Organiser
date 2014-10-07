@@ -131,14 +131,15 @@ function eventorganiser_pre_get_posts( $query ) {
 	$date_objs = array('event_start_after'=>'','event_start_before'=>'','event_end_after'=>'','event_end_before'=>'');
 	foreach($date_objs as $prop => $value):
 		$date = $query->get($prop);
-		try{
-			$date = ( empty($date) ? false : new DateTime($date, eo_get_blog_timezone()) );
-		}catch( Exception $e){
-			$date = false;
+		if ( !( $date instanceof DateTime ) ){
+			try{
+				$date = ( empty($date) ? false : new DateTime($date, eo_get_blog_timezone()) );
+			}catch( Exception $e){
+				$date = false;
+			}
 		}
 		$date_objs[$prop] = $date;
 		$query->set($prop, $date);
-		
 	endforeach;
 
 	//If eo_interval is set, determine date ranges
@@ -220,7 +221,7 @@ function eventorganiser_pre_get_posts( $query ) {
 	}
 
 	if( $query->is_feed('eo-events') ){
-		//Posts per page for feeds bug http://core.trac.wordpress.org/ticket/17853
+		//Posts per page for feeds bug https://core.trac.wordpress.org/ticket/17853
 		add_filter('post_limits','wp17853_eventorganiser_workaround');
 		$query->set('posts_per_page',-1);
 	}
@@ -239,7 +240,7 @@ add_action( 'pre_get_posts', '__return_false', 10 );
 
 
 /**
- * A work around for a bug that posts_per_page is over-ridden by the posts_per_rss option. http://core.trac.wordpress.org/ticket/17853
+ * A work around for a bug that posts_per_page is over-ridden by the posts_per_rss option. https://core.trac.wordpress.org/ticket/17853
 
  * posts_per_rss option overirdes posts_per_page  and nopaging is also set to 'false'.
  * For ics feeds nopaging should be true and post_per_page should be -1. We intercept the LIMIT part of the query and remove it.

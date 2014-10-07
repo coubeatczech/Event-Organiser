@@ -334,23 +334,15 @@ function  _eventorganiser_insert_occurrences( $post_id, $event_data ){
 	extract( $event_data );
 	$tz = eo_get_blog_timezone();
 
-	//Get duration
-	$duration = false;
-	if( function_exists('date_diff') ){
-		$duration = date_diff( $start,$end );
-
-		/* Storing a DateInterval object can cause errors. Serialize it.
-		 Thanks to Mathieu Parisot, Mathias & Dave Page */
-		$event_data['duration'] = maybe_serialize( $duration );
-	}
-
-	//Work around for PHP < 5.3
-	$seconds      = round( abs( $start->format('U') - $end->format('U') ) );
-	$days         = floor( $seconds/86400 );// 86400 = 60*60*24 seconds in a normal day
-	$sec_diff     = $seconds - $days*86400;
-	$duration_str = '+'.$days.'days '.$sec_diff.' seconds';
+	//Don't use date_diff (requires php 5.3+)
+	//Also see https://github.com/stephenharris/Event-Organiser/issues/205
+	//And https://github.com/stephenharris/Event-Organiser/issues/224
+	$duration_str = eo_date_interval( $start, $end, '+%y year +%m month +%d days +%h hours +%i minutes +%s seconds' );
 	
 	$event_data['duration_str'] = $duration_str;
+
+	$schedule_last_end = clone $schedule_last;
+	$schedule_last_end->modify( $duration_str );
 
 	//Get dates to be deleted / added
 	$current_occurrences = eo_get_the_occurrences( $post_id );
@@ -376,11 +368,7 @@ function  _eventorganiser_insert_occurrences( $post_id, $event_data ){
 		foreach( $update as $occurrence_id => $occurrence ){
 
 			$occurrence_end = clone $occurrence;
-			if( $duration ){
-				$occurrence_end->add($duration);
-			}else{
-				$occurrence_end->modify($duration_str);
-			}
+			$occurrence_end->modify($duration_str);
 			
 			$occurrence_input = array(
 				'StartDate'        => $occurrence->format('Y-m-d'),
@@ -407,11 +395,7 @@ function  _eventorganiser_insert_occurrences( $post_id, $event_data ){
 	if( $insert ){
 		foreach( $insert as $counter => $occurrence ):
 			$occurrence_end = clone $occurrence;
-			if( $duration ){
-				$occurrence_end->add($duration);
-			}else{
-				$occurrence_end->modify($duration_str);
-			}
+			$occurrence_end->modify($duration_str);
 
 			$occurrence_input =array(
 				'post_id'          => $post_id,
@@ -457,8 +441,8 @@ function  _eventorganiser_insert_occurrences( $post_id, $event_data ){
 	update_post_meta( $post_id, '_eventorganiser_event_schedule', $event_data );
 	update_post_meta( $post_id, '_eventorganiser_schedule_start_start', $start->format('Y-m-d H:i:s') );
 	update_post_meta( $post_id, '_eventorganiser_schedule_start_finish', $end->format('Y-m-d H:i:s') );
-	update_post_meta( $post_id, '_eventorganiser_schedule_last_start', $occurrence->format('Y-m-d H:i:s') );
-	update_post_meta( $post_id, '_eventorganiser_schedule_last_finish', $occurrence_end->format('Y-m-d H:i:s') );
+	update_post_meta( $post_id, '_eventorganiser_schedule_last_start', $schedule_last->format('Y-m-d H:i:s') );
+	update_post_meta( $post_id, '_eventorganiser_schedule_last_finish', $schedule_last_end->format('Y-m-d H:i:s') );
 		
 	return $post_id;
 }
