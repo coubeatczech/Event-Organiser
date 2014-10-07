@@ -131,6 +131,7 @@ class Event_Organiser_Im_Export  {
 	*/
 	public function export_events( $filename, $filetype ){ 
 		//Collect output 
+		ob_clean();
 		ob_start();
 
 		// File header
