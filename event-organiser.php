@@ -1,5 +1,9 @@
 <?php
 /*
+Plugin Name: Event Organiser X
+Description: As normal Event Organiser, but the auto updates are turned off
+*/
+/*
 Plugin Name: Event Organiser
 Plugin URI: http://www.wp-event-organiser.com
 Version: 2.9.2
